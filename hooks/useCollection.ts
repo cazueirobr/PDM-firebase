@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getCountFromServer,
   getDocs,
   getFirestore,
   updateDoc,
@@ -68,6 +69,18 @@ export default function useCollection<T extends { [x: string]: any }>(
   };
 
   /**
+   * get the number of Documents
+   * @returns the count as number
+   */
+  const count = async () => {
+    setLoading(true);
+    const snapshot = await getCountFromServer(collection(db, collectionName));
+    const count = snapshot.data().count;
+    setLoading(false);
+    return count;
+  };
+
+  /**
    * Alias to refetch all.
    */
   const refreshData = () => {
@@ -80,5 +93,5 @@ export default function useCollection<T extends { [x: string]: any }>(
     // eslint-disable-next-line
   }, []);
 
-  return { data, loading, create, remove, update, all, refreshData };
+  return { data, loading, create, remove, update, all, count, refreshData };
 }

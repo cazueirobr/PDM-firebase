@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 
 import {
-  getAuth,
-  onAuthStateChanged,
+  User,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
-  User,
 } from "firebase/auth";
+import { useFirebaseContext } from "./FirebaseContext/useFirebaseContext";
 
 /**
  * Firebase authentication hook.
  * @returns Access to main auth service using email and password strategy, plus user object and loading state flag.
  */
 export default function useAuth() {
+  const { auth } = useFirebaseContext();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
@@ -23,9 +24,12 @@ export default function useAuth() {
    * @param password User's password.
    */
   const login = async (email: string, password: string) => {
+    if (!auth)
+      throw new Error("Auth not initialized in FirebaseContextProvider!");
+
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(getAuth(), email, password);
+      await signInWithEmailAndPassword(auth, email, password);
     } finally {
       setLoading(false);
     }
@@ -35,7 +39,10 @@ export default function useAuth() {
    * Wrapper for logout users.
    */
   const logout = async () => {
-    await signOut(getAuth());
+    if (!auth)
+      throw new Error("Auth not initialized in FirebaseContextProvider!");
+
+    await signOut(auth);
   };
 
   /**
@@ -44,19 +51,24 @@ export default function useAuth() {
    * @param password user password (min 6 chars)
    */
   const registerUser = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(getAuth(), email, password);
+    if (!auth)
+      throw new Error("Auth not initialized in FirebaseContextProvider!");
+
+    await createUserWithEmailAndPassword(auth, email, password);
   };
 
   useEffect(() => {
-    onAuthStateChanged(getAuth(), (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-  }, []);
+    if (auth) {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUser(user);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      });
+    }
+  }, [auth]);
 
   return { loading, user, login, logout, registerUser };
 }

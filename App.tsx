@@ -1,19 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import firebaseConfig from "./config/firebaseConfig";
-import useFirebase from "./hooks/useFirebase";
-import useAuth from './hooks/useAuth';
 import Login from './components/Login';
+import { FirebaseContextProvider } from './hooks/FirebaseContext/FirebaseContextProvider';
 
 
 export default function App() {
-  const firebaseApp = useFirebase(firebaseConfig);
-  if (firebaseApp == null) return <Text>Loading...</Text>;
+
+
 
   return (
+    <FirebaseContextProvider firebaseConfig={firebaseConfig}>
     <View style={styles.container}>
       <Login></Login>
     </View>
+    </FirebaseContextProvider>
   );
 }
 

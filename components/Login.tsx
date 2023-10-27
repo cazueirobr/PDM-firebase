@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 export default function Login() {
   const { loading, user, login, logout } = useAuth();
-  const [usuario, setUsuario] = useState('fulane.exemplo@hotmail.com');
+  const [usuario, setUsuario] = useState('fulano.exemplo@hotmail.com');
   const [senha, setSenha] = useState('teste123');
 
   const handleLogin = async () => {
